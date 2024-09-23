@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+<!-- TITLE -->
+{% block title %}
+    Home
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+    <div class="container w-50">
+        {% include 'task/nav.html' %}
+        <div class="row">
+            <div class="col-2 border-end">
+                <div class="d-flex align-items-start">
+                    <div class="nav flex-column nav-pills me-1 w-100" id="v-pills-tab" role="tablist"
+                         aria-orientation="vertical">
+                        <button class="nav-link text-warning active text-start poppins-bold" id="v-pills-home-tab"
+                                data-bs-toggle="pill"
+                                data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home"
+                                aria-selected="true">
+                            <i class="bi bi-circle"></i>
+                            TODO
+                        </button>
+                        <button class="nav-link text-success text-start poppins-bold" id="v-pills-profile-tab"
+                                data-bs-toggle="pill"
+                                data-bs-target="#v-pills-profile" type="button" role="tab"
+                                aria-controls="v-pills-profile" aria-selected="false">
+                            <i class="bi bi-check-circle"></i>
+                            DONE
+                        </button>
+                        <button class="nav-link text-danger text-start poppins-bold" id="v-pills-messages-tab"
+                                data-bs-toggle="pill"
+                                data-bs-target="#v-pills-messages" type="button" role="tab"
+                                aria-controls="v-pills-messages" aria-selected="false">
+                            <i class="bi bi-x-circle-fill"></i>
+                            DELETE
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-10">
+                <div class="tab-content mt-2" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active reminder-container" id="v-pills-home" role="tabpanel"
+                         aria-labelledby="v-pills-home-tab" tabindex="0">
+                        {% if objects %}
+                            {% for object in objects %}
+                                <div class="reminder-item">
+                                    <input type="radio" id="reminder1" name="reminder">
+                                    <label for="reminder1" class="reminder-border-bottom">
+                                        <strong class="poppins-bold">{{ object.title }}</strong>
+                                        <p class="poppins-light">{{ object.description }}</p>
+                                        <span class="reminder-time poppins-medium">Reminders – <span
+                                                class="time">{{ object.created_at|time }}</span></span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="tab-pane fade reminder-container" id="v-pills-profile" role="tabpanel"
+                         aria-labelledby="v-pills-profile-tab" tabindex="0">Profile content
+                    </div>
+                    <div class="tab-pane fade reminder-container" id="v-pills-messages" role="tabpanel"
+                         aria-labelledby="v-pills-messages-tab" tabindex="0">Message content
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        let btns = document.querySelectorAll('input[type="radio"]:checked');
+        btns.forEach(function (btn) {
+            btn.addEventListener("change", function (e) {
+                e.preventDefault();
+                alert("clicked");
+            });
+        });
+    </script>
+
+{% endblock %}
