@@ -70,11 +70,41 @@
     </div>
 
     <script>
-        let btns = document.querySelectorAll('input[type="radio"]:checked');
-        btns.forEach(function (btn) {
-            btn.addEventListener("change", function (e) {
-                e.preventDefault();
-                alert("clicked");
+        let radios = document.querySelectorAll('input[type="radio"][name="reminder"]');
+        radios.forEach((radio) => {
+            radio.addEventListener("change", () => {
+                if (radio.checked) {
+                    let label = radio.nextElementSibling;
+                    let title = label.querySelector("strong").textContent;
+                    let description = label.querySelector("p").textContent;
+                    let time = label.querySelector(".time").textContent;
+
+                    console.log("Title: " + title);
+                    console.log("Description: " + description);
+                    console.log("Time: " + time);
+
+
+                    // 3 soniya kutib turib sekin yo'qolishni boshlash
+                    setTimeout(function () {
+                        // Radio tugma va labelga "fade-out" klassini qo'shish
+                        radio.classList.add('fade-out');
+                        label.classList.add('fade-out');
+
+                        // Bir necha millisekund ichida "hide" klassini qo'shish uchun
+                        setTimeout(function () {
+                            radio.classList.add('hide');
+                            label.classList.add('hide');
+                        }, 10); // Kichik kechikish bilan qo'shiladi
+
+                        // Element butunlay yo'qolganidan keyin (2 soniyadan keyin) ularni o'chirish
+                        setTimeout(function () {
+                            radio.remove();
+                            label.remove();
+                        }, 1000); // 2 soniyadan keyin butunlay yo'q bo'ladi
+                    }, 500); // 3 soniyadan keyin yo'q bo'lish boshlanadi
+                }
+
+
             });
         });
     </script>
