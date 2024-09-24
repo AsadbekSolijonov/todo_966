@@ -6,15 +6,7 @@ from task.models import Task
 
 
 def to_do(request):
-    todo_objs = Task.todo.all()
-    done_objs = Task.done.all()
-
-    context = {
-        'todo_objects': todo_objs,
-        'done_objects': done_objs
-
-    }
-    return render(request, 'task/home.html', context)
+    return render(request, 'task/home.html')
 
 
 def to_do_get(request):
