@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
 
-<!-- TITLE -->
 {% block title %}
     Home
 {% endblock %}
 
-<!-- CONTENT -->
 {% block content %}
     <div class="container w-50">
         {% include 'task/nav.html' %}
@@ -18,64 +16,34 @@
                                 data-bs-toggle="pill"
                                 data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home"
                                 aria-selected="true">
-                            <i class="bi bi-circle"></i>
-                            TODO
+                            <i class="bi bi-circle"></i> TODO
                         </button>
                         <button class="nav-link text-success text-start poppins-bold" id="v-pills-profile-tab"
                                 data-bs-toggle="pill"
                                 data-bs-target="#v-pills-profile" type="button" role="tab"
                                 aria-controls="v-pills-profile" aria-selected="false">
-                            <i class="bi bi-check-circle"></i>
-                            DONE
+                            <i class="bi bi-check-circle"></i> DONE
                         </button>
                         <button class="nav-link text-danger text-start poppins-bold" id="v-pills-messages-tab"
                                 data-bs-toggle="pill"
                                 data-bs-target="#v-pills-messages" type="button" role="tab"
                                 aria-controls="v-pills-messages" aria-selected="false">
-                            <i class="bi bi-x-circle-fill"></i>
-                            DELETE
+                            <i class="bi bi-x-circle-fill"></i> DELETE
                         </button>
                     </div>
                 </div>
             </div>
             <div class="col-10">
                 <div class="tab-content mt-2" id="v-pills-tabContent">
+                    <!-- TODO List -->
                     <div class="tab-pane fade show active reminder-container" id="v-pills-home" role="tabpanel"
                          aria-labelledby="v-pills-home-tab" tabindex="0">
-                        {% if todo_objects %}
-                            {% for object in todo_objects %}
-                                <div class="reminder-item">
-                                    <input type="radio" id="reminder1" name="reminder">
-                                    <label for="reminder1" class="reminder-border-bottom">
-                                        <input type="hidden" value="{{ object.id }}">
-                                        <strong class="poppins-bold">{{ object.title }}</strong>
-                                        <p class="poppins-light">{{ object.description }}</p>
-                                        <span class="reminder-time poppins-medium">Reminders – <span
-                                                class="time">{{ object.created_at|time }}</span></span>
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
                     </div>
+                    <!-- DONE List -->
                     <div class="tab-pane fade reminder-container" id="v-pills-profile" role="tabpanel"
                          aria-labelledby="v-pills-profile-tab" tabindex="0">
-                        {% if done_objects %}
-                            {% for object in done_objects %}
-                                <div class="reminder-item">
-                                    <input type="radio" id="reminder1" name="reminder">
-                                    <label for="reminder1" class="reminder-border-bottom">
-                                        <input type="hidden" value="{{ object.id }}">
-                                        <strong class="poppins-bold">{{ object.title }}</strong>
-                                        <p class="poppins-light">{{ object.description }}</p>
-                                        <span class="reminder-time poppins-medium">Reminders – <span
-                                                class="time">{{ object.created_at|time }}</span></span>
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>Bajarilgan topshiriq mavjud emas!</p>
-                        {% endif %}
                     </div>
+                    <!-- DELETE List -->
                     <div class="tab-pane fade reminder-container" id="v-pills-messages" role="tabpanel"
                          aria-labelledby="v-pills-messages-tab" tabindex="0">
                         O'chirilgan topshiriqlar mavjud emas!
@@ -83,93 +51,102 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 
     <script>
-        // GET
-        const get_url = "{% url 'home-js' %}"
-
-
-        setInterval(function () {
-            fetch(get_url, {
-                method: 'GET'
-            })
+        // Function to get tasks
+        function getTasks() {
+            fetch("{% url 'home-js' %}")
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Server data: ', data)
+                    updateTaskLists(data);
                 })
-                .catch(error => console.log('Xatolik:', error));
-        }, 5000);  // Fetch every 5 seconds
+                .catch(error => console.error('Xato:', error));
+        }
 
+        // Function to update the UI with the fetched tasks
+        function updateTaskLists(data) {
+            const todoContainer = document.getElementById('v-pills-home');
+            const doneContainer = document.getElementById('v-pills-profile');
 
-        // POST
-        let radios = document.querySelectorAll('input[type="radio"][name="reminder"]');
-        radios.forEach((radio) => {
-            radio.addEventListener("change", () => {
-                if (radio.checked) {
-                    let label = radio.nextElementSibling;
-                    let title = label.querySelector("strong").textContent;
-                    let description = label.querySelector("p").textContent;
-                    let time = label.querySelector(".time").textContent;
-                    let id = label.querySelector("input").value;
+            todoContainer.innerHTML = '';
+            doneContainer.innerHTML = '';
 
-                    console.log("Task id: " + id + "bajarildi!");
-                    console.log("Title: " + title);
-                    console.log("Description: " + description);
-                    console.log("Time: " + time);
+            // Populate TODO
+            data.todo_objects.forEach(task => {
+                todoContainer.innerHTML += `
+                <div class="reminder-item">
+                    <input type="radio" id="todo-${task.id}" name="reminder">
+                    <label for="todo-${task.id}" class="reminder-border-bottom">
+                        <input type="hidden" value="${task.id}">
+                        <strong class="poppins-bold">${task.title}</strong>
+                        <p class="poppins-light">${task.description}</p>
+                        <span class="reminder-time poppins-medium">Reminders – <span class="time">${task.created_at}</span></span>
+                    </label>
+                </div>`;
+            });
 
-                    const url = "{% url 'receiver-reminder' %}"
+            // Populate DONE
+            data.done_objects.forEach(task => {
+                doneContainer.innerHTML += `
+                <div class="reminder-item">
+                    <input type="radio" id="done-${task.id}" name="reminder">
+                    <label for="done-${task.id}" class="reminder-border-bottom">
+                        <input type="hidden" value="${task.id}">
+                        <strong class="poppins-bold">${task.title}</strong>
+                        <p class="poppins-light">${task.description}</p>
+                        <span class="reminder-time poppins-medium">Reminders – <span class="time">${task.created_at}</span></span>
+                    </label>
+                </div>`;
+            });
 
-                    fetch(url, {
-                        method: "POST",
-                        headers: {
-                            "Content-type": "application/json",
-                            "X-CSRFToken": getCookie('csrftoken')
-                        },
-                        body: JSON.stringify({
-                            id: id,
-                        })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log("Server Javobi:", data);
-                        })
-                        .catch(error => console.error("Xato:", error))
+            // Attach event listeners for radio buttons
+            attachRadioListeners();
+        }
 
+        // Function to handle task completion toggles
+        function attachRadioListeners() {
+            const radios = document.querySelectorAll('input[type="radio"][name="reminder"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (radio.checked) {
+                        const label = radio.nextElementSibling;
+                        const taskId = label.querySelector('input').value;
 
-                    // 3 soniya kutib turib sekin yo'qolishni boshlash
-                    setTimeout(function () {
-                        // Radio tugma va labelga "fade-out" klassini qo'shish
-                        radio.classList.add('fade-out');
+                        // Add 'fade-out' class to start the fading animation
                         label.classList.add('fade-out');
 
-                        // Bir necha millisekund ichida "hide" klassini qo'shish uchun
-                        setTimeout(function () {
-                            radio.classList.add('hide');
-                            label.classList.add('hide');
-                        }, 10); // Kichik kechikish bilan qo'shiladi
-
-                        // Element butunlay yo'qolganidan keyin (2 soniyadan keyin) ularni o'chirish
-                        setTimeout(function () {
-                            radio.remove();
-                            label.remove();
-                        }, 1000); // 1 soniyadan keyin butunlay yo'q bo'ladi
-                    }, 1000); // 1 soniyadan keyin yo'q bo'lish boshlanadi
-
-
-                }
+                        // Send POST request to update task status
+                        fetch("{% url 'receiver-reminder' %}", {
+                            method: "POST",
+                            headers: {
+                                "Content-type": "application/json",
+                                "X-CSRFToken": getCookie('csrftoken')
+                            },
+                            body: JSON.stringify({id: taskId})
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log("Server Javobi:", data);
+                                // After the animation is complete, refresh tasks
+                                setTimeout(() => {
+                                    getTasks();
+                                }, 500); // 0.5s delay to match fade-out animation duration
+                            })
+                            .catch(error => console.error('Xato:', error));
+                    }
+                });
             });
-        });
+        }
 
+
+        // CSRF Token function
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
                 const cookies = document.cookie.split(';');
                 for (let i = 0; i < cookies.length; i++) {
                     const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
@@ -179,7 +156,40 @@
             return cookieValue;
         }
 
-        const csrftoken = getCookie('csrftoken');
+        // Fetch tasks every 5 seconds
+        setInterval(getTasks, 5000);
+        getTasks();  // Initial load
+
+        //------------------------ Refresh --------------------------
+
+        // Bo'limni tanlaganda localStorage ga yozish
+        const tabs = document.querySelectorAll('.nav-link');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                localStorage.setItem('activeTab', this.id);  // Tanlangan bo'limni saqlab qo'yish
+            });
+        });
+
+        // Sahifa yangilanganida oxirgi tanlangan bo'limni topish va aktiv qilish
+        document.addEventListener('DOMContentLoaded', function () {
+            const activeTabId = localStorage.getItem('activeTab');
+
+            if (activeTabId) {
+                const activeTab = document.getElementById(activeTabId);
+                const activePaneId = activeTab.getAttribute('data-bs-target');
+                const activePane = document.querySelector(activePaneId);
+
+                // Barcha bo'limlarni faolsizlantirish
+                tabs.forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('show', 'active'));
+
+                // Saqlangan bo'limni aktiv qilish
+                activeTab.classList.add('active');
+                activePane.classList.add('show', 'active');
+            }
+        });
+
     </script>
 
 {% endblock %}
