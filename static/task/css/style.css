@@ -1,0 +1,290 @@
+/*------------- GOOGLE FONTS-----------*/
+body {
+    font-family: "Poppins", sans-serif;
+}
+
+.poppins-thin {
+    font-family: "Poppins", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+}
+
+.poppins-extralight {
+    font-family: "Poppins", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.poppins-light {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.poppins-regular {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.poppins-medium {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.poppins-semibold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.poppins-bold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.poppins-extrabold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+}
+
+.poppins-black {
+    font-family: "Poppins", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
+
+.poppins-thin-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 100;
+    font-style: italic;
+}
+
+.poppins-extralight-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 200;
+    font-style: italic;
+}
+
+.poppins-light-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.poppins-regular-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.poppins-medium-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-style: italic;
+}
+
+.poppins-semibold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.poppins-bold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.poppins-extrabold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-style: italic;
+}
+
+.poppins-black-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 900;
+    font-style: italic;
+}
+
+/*------------- / GOOGLE FONTS-----------*/
+
+
+/*------ Navbar -------*/
+.form-control {
+    background-color: #f9fafb; /* Orqa fon rangi */
+    border: none; /* Chegarani olib tashlash */
+    padding: 10px 20px; /* Ichki oraliq */
+    font-size: 1rem; /* Matn o'lchami */
+}
+
+.form-control:focus {
+    outline: none; /* Fokusda qattiq chegara bo'lmasin */
+}
+
+.btn-outline-success {
+    padding: 10px 20px; /* Tugma ichidagi oraliq */
+    border: 2px solid #28a745; /* Tugma chegarasi */
+    font-size: 1rem; /* Matn o'lchami */
+    border-radius: 30px; /* Yumaloq burchaklar */
+
+}
+
+.btn-outline-success:hover {
+    background-color: #28a745;
+    color: white;
+}
+
+/*------ / Navbar -------*/
+
+/*------ TODO  -------*/
+
+.reminder-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0 0 10px;
+    transition: background-color 0.2s ease;
+}
+
+.reminder-border-bottom:hover {
+    background-color: rgba(224, 224, 224, 0.50);
+
+}
+
+.reminder-border-bottom {
+    border-bottom: 1px solid rgba(224, 224, 224);
+    padding: 5px;
+    transition: all .1s ease-in;
+}
+
+.reminder-item {
+    position: relative;
+
+}
+
+.reminder-item input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px dotted #ccc;
+    border-radius: 50%;
+    margin-right: 15px;
+    position: absolute;
+    cursor: pointer;
+    outline: none;
+    top: 16px;
+    left: -10px;
+}
+
+/* Radio button faqat aylana bosilganda tanlanadi */
+.reminder-item input[type="radio"]:checked {
+    border: 2px solid rgba(239, 159, 53, 0.88);
+    background-color: rgba(239, 159, 53, 0.55);
+    transition: all .3s ease-in-out;
+}
+
+/* Butun element fonini o'zgartirish */
+.reminder-item input[type="radio"]:checked + label {
+    #background-color: rgba(224, 224, 224, 0.19); /* Light grey background */
+    #border-radius: 8px;
+}
+
+
+/* Radio buttondagi ichki oq nuqta */
+
+.reminder-item input[type="radio"]:checked::after {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
+
+.reminder-item label {
+    display: block;
+    cursor: pointer;
+    width: 100%;
+    margin-left: 8px;
+}
+
+.reminder-item strong {
+    font-size: 18px;
+    color: #333;
+}
+
+.reminder-item p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.reminder-item .reminder-time {
+    font-size: 14px;
+    color: #333;
+}
+
+.reminder-item .time {
+    color: #ff3b30; /* Qizil rang */
+}
+
+/*------ / TODO  -------*/
+
+
+/*------- Scroll height, scrollbar-width  ------- */
+
+.reminder-container {
+    max-height: 85vh;
+    overflow-y: auto; /* Vertikal scroll qo'shish */
+    padding: 10px;
+    box-sizing: border-box; /* Padding va borderni hisobga oladi */
+    scrollbar-width: none;
+}
+
+/*------- / Scroll height, scrollbar-width  ------- */
+
+/*---------- Animation -----------*/
+
+.reminder-item input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px dotted #ccc;
+    border-radius: 50%;
+    margin-right: 15px;
+    position: absolute;
+    cursor: pointer;
+    outline: none;
+    top: 16px;
+    left: -10px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.reminder-item input[type="radio"]:checked {
+    background-color: rgba(239, 159, 53, 0.55); /* Orange background */
+}
+
+.reminder-item input[type="radio"]:checked + label {
+    transition: opacity 0.5s ease-out; /* Text fading out */
+    opacity: 0; /* Fades out when checked */
+}
+
+.reminder-item input[type="radio"]:checked::after {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
+
+/*---------- / Animation -----------*/
+
