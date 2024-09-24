@@ -42,11 +42,12 @@
                 <div class="tab-content mt-2" id="v-pills-tabContent">
                     <div class="tab-pane fade show active reminder-container" id="v-pills-home" role="tabpanel"
                          aria-labelledby="v-pills-home-tab" tabindex="0">
-                        {% if objects %}
-                            {% for object in objects %}
+                        {% if todo_objects %}
+                            {% for object in todo_objects %}
                                 <div class="reminder-item">
                                     <input type="radio" id="reminder1" name="reminder">
                                     <label for="reminder1" class="reminder-border-bottom">
+                                        <input type="hidden" value="{{ object.id }}">
                                         <strong class="poppins-bold">{{ object.title }}</strong>
                                         <p class="poppins-light">{{ object.description }}</p>
                                         <span class="reminder-time poppins-medium">Reminders – <span
@@ -57,10 +58,27 @@
                         {% endif %}
                     </div>
                     <div class="tab-pane fade reminder-container" id="v-pills-profile" role="tabpanel"
-                         aria-labelledby="v-pills-profile-tab" tabindex="0">Profile content
+                         aria-labelledby="v-pills-profile-tab" tabindex="0">
+                        {% if done_objects %}
+                            {% for object in done_objects %}
+                                <div class="reminder-item">
+                                    <input type="radio" id="reminder1" name="reminder">
+                                    <label for="reminder1" class="reminder-border-bottom">
+                                        <input type="hidden" value="{{ object.id }}">
+                                        <strong class="poppins-bold">{{ object.title }}</strong>
+                                        <p class="poppins-light">{{ object.description }}</p>
+                                        <span class="reminder-time poppins-medium">Reminders – <span
+                                                class="time">{{ object.created_at|time }}</span></span>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>Bajarilgan topshiriq mavjud emas!</p>
+                        {% endif %}
                     </div>
                     <div class="tab-pane fade reminder-container" id="v-pills-messages" role="tabpanel"
-                         aria-labelledby="v-pills-messages-tab" tabindex="0">Message content
+                         aria-labelledby="v-pills-messages-tab" tabindex="0">
+                        O'chirilgan topshiriqlar mavjud emas!
                     </div>
                 </div>
             </div>
@@ -70,6 +88,23 @@
     </div>
 
     <script>
+        // GET
+        const get_url = "{% url 'home-js' %}"
+
+
+        setInterval(function () {
+            fetch(get_url, {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Server data: ', data)
+                })
+                .catch(error => console.log('Xatolik:', error));
+        }, 5000);  // Fetch every 5 seconds
+
+
+        // POST
         let radios = document.querySelectorAll('input[type="radio"][name="reminder"]');
         radios.forEach((radio) => {
             radio.addEventListener("change", () => {
@@ -78,10 +113,30 @@
                     let title = label.querySelector("strong").textContent;
                     let description = label.querySelector("p").textContent;
                     let time = label.querySelector(".time").textContent;
+                    let id = label.querySelector("input").value;
 
+                    console.log("Task id: " + id + "bajarildi!");
                     console.log("Title: " + title);
                     console.log("Description: " + description);
                     console.log("Time: " + time);
+
+                    const url = "{% url 'receiver-reminder' %}"
+
+                    fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "Content-type": "application/json",
+                            "X-CSRFToken": getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Server Javobi:", data);
+                        })
+                        .catch(error => console.error("Xato:", error))
 
 
                     // 3 soniya kutib turib sekin yo'qolishni boshlash
@@ -100,13 +155,31 @@
                         setTimeout(function () {
                             radio.remove();
                             label.remove();
-                        }, 1000); // 2 soniyadan keyin butunlay yo'q bo'ladi
-                    }, 500); // 3 soniyadan keyin yo'q bo'lish boshlanadi
+                        }, 1000); // 1 soniyadan keyin butunlay yo'q bo'ladi
+                    }, 1000); // 1 soniyadan keyin yo'q bo'lish boshlanadi
+
+
                 }
-
-
             });
         });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
     </script>
 
 {% endblock %}
