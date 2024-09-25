@@ -48,6 +48,13 @@ function updateTaskLists(data) {
     const todoContainer = document.getElementById('v-pills-home');
     const doneContainer = document.getElementById('v-pills-profile');
 
+    // H:i format for time
+    let time = (today) => {
+        const createdAt = new Date(today);
+        return createdAt.toLocaleTimeString('en-GB', {hour: "2-digit", minute: "2-digit"})
+    }
+
+
     todoContainer.innerHTML = '';
     doneContainer.innerHTML = '';
 
@@ -60,13 +67,14 @@ function updateTaskLists(data) {
                         <input type="hidden" value="${task.id}">
                         <strong class="poppins-bold">${task.title}</strong>
                         <p class="poppins-light">${task.description}</p>
-                        <span class="reminder-time poppins-medium">Reminders – <span class="time">${task.created_at}</span></span>
+                        <span class="reminder-time poppins-medium">Reminders – <span class="time">${time(task.created_at)}</span></span>
                     </label>
                 </div>`;
     });
 
     // Populate DONE
     data.done_objects.forEach(task => {
+
         doneContainer.innerHTML += `
                 <div class="reminder-item">
                     <input type="radio" id="done-${task.id}" name="reminder">
@@ -74,7 +82,7 @@ function updateTaskLists(data) {
                         <input type="hidden" value="${task.id}">
                         <strong class="poppins-bold">${task.title}</strong>
                         <p class="poppins-light">${task.description}</p>
-                        <span class="reminder-time poppins-medium">Reminders – <span class="time">${task.created_at}</span></span>
+                        <span class="reminder-time poppins-medium">Reminders – <span class="time">${time(task.created_at)}</span></span>
                     </label>
                 </div>`;
     });
