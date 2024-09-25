@@ -1,3 +1,20 @@
+// CSRF Token function
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+//
 document.querySelectorAll('.reminder-item label').forEach(label => {
     label.addEventListener('click', function (event) {
         event.preventDefault(); // Click eventini label bo'yicha oldini oladi
@@ -7,6 +24,7 @@ document.querySelectorAll('.reminder-item label').forEach(label => {
 // Scroll ni tezligini kamaytirish
 const container = document.querySelector('.reminder-container');
 
+//
 container.addEventListener('wheel', (e) => {
     e.preventDefault(); // Scrollning default xatti-harakatini bloklaymiz
     container.scrollBy({
@@ -17,7 +35,7 @@ container.addEventListener('wheel', (e) => {
 
 // Function to get tasks
 function getTasks() {
-    fetch("urls/")
+    fetch("tasks/")
         .then(response => response.json())
         .then(data => {
             updateTaskLists(data);
@@ -78,7 +96,7 @@ function attachRadioListeners() {
                 label.classList.add('fade-out');
 
                 // Send POST request to update task status
-                fetch("receiver/", {
+                fetch("task-receiver/", {
                     method: "POST",
                     headers: {
                         "Content-type": "application/json",
@@ -101,27 +119,11 @@ function attachRadioListeners() {
 }
 
 
-// CSRF Token function
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
 // Fetch tasks every 5 seconds
 setInterval(getTasks, 5000);
 getTasks();  // Initial load
 
-//------------------------ Refresh --------------------------
+//------------------------ Refresh qilinganda tanlangan bo'limda qolish --------------------------
 
 // Bo'limni tanlaganda localStorage ga yozish
 const tabs = document.querySelectorAll('.nav-link');
