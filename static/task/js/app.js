@@ -14,33 +14,21 @@ function getCookie(name) {
     return cookieValue;
 }
 
-//
-document.querySelectorAll('.reminder-item label').forEach(label => {
-    label.addEventListener('click', function (event) {
-        event.preventDefault(); // Click eventini label bo'yicha oldini oladi
-    });
-});
+// Function to get tasks, with optional search query
+function getTasks(query = '') {
+    let url = `tasks/`; // Base URL
 
-// Scroll ni tezligini kamaytirish
-const container = document.querySelector('.reminder-container');
+    // If there is a search query, append it to the URL
+    if (query) {
+        url += `?q=${encodeURIComponent(query)}`;
+    }
 
-//
-container.addEventListener('wheel', (e) => {
-    e.preventDefault(); // Scrollning default xatti-harakatini bloklaymiz
-    container.scrollBy({
-        top: e.deltaY * 1.0, // Bu yerda * 0.1 scroll tezligini kamaytiradi (ko'rsatkichni o'zgartirishingiz mumkin)
-    });
-});
-
-
-// Function to get tasks
-function getTasks() {
-    fetch("tasks/")
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             updateTaskLists(data);
         })
-        .catch(error => console.error('Xato:', error));
+        .catch(error => console.error('Error:', error));
 }
 
 // Function to update the UI with the fetched tasks
@@ -51,41 +39,47 @@ function updateTaskLists(data) {
     // H:i format for time
     let time = (today) => {
         const createdAt = new Date(today);
-        return createdAt.toLocaleTimeString('en-GB', {hour: "2-digit", minute: "2-digit"})
+        return createdAt.toLocaleTimeString('en-GB', { hour: "2-digit", minute: "2-digit" });
     }
-
 
     todoContainer.innerHTML = '';
     doneContainer.innerHTML = '';
 
     // Populate TODO
-    data.todo_objects.forEach(task => {
-        todoContainer.innerHTML += `
+    if (data.todo_objects.length > 0) {
+        data.todo_objects.forEach(task => {
+            todoContainer.innerHTML += `
                 <div class="reminder-item">
                     <input type="radio" id="todo-${task.id}" name="reminder">
                     <label for="todo-${task.id}" class="reminder-border-bottom">
                         <input type="hidden" value="${task.id}">
-                        <strong class="poppins-bold">${task.title}</strong>
+                        <strong class="poppins-bold">${task.title}<i class="bi bi-info-circle float-end"></i></strong>
                         <p class="poppins-light">${task.description}</p>
                         <span class="reminder-time poppins-medium">Reminders – <span class="time">${time(task.created_at)}</span></span>
                     </label>
                 </div>`;
-    });
+        });
+    } else {
+        todoContainer.innerHTML += `Bajarish uchun hech qanday topshiriq mavjud emas`;
+    }
 
     // Populate DONE
-    data.done_objects.forEach(task => {
-
-        doneContainer.innerHTML += `
+    if (data.done_objects.length > 0) {
+        data.done_objects.forEach(task => {
+            doneContainer.innerHTML += `
                 <div class="reminder-item">
                     <input type="radio" id="done-${task.id}" name="reminder">
                     <label for="done-${task.id}" class="reminder-border-bottom">
                         <input type="hidden" value="${task.id}">
-                        <strong class="poppins-bold">${task.title}</strong>
+                        <strong class="poppins-bold">${task.title} <i class="bi bi-info-circle float-end"></i></strong>
                         <p class="poppins-light">${task.description}</p>
                         <span class="reminder-time poppins-medium">Reminders – <span class="time">${time(task.created_at)}</span></span>
                     </label>
                 </div>`;
-    });
+        });
+    } else {
+        doneContainer.innerHTML += `Bajarilgan topshiriqlar mavjud emas`;
+    }
 
     // Attach event listeners for radio buttons
     attachRadioListeners();
@@ -110,7 +104,7 @@ function attachRadioListeners() {
                         "Content-type": "application/json",
                         "X-CSRFToken": getCookie('csrftoken')
                     },
-                    body: JSON.stringify({id: taskId})
+                    body: JSON.stringify({ id: taskId })
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -126,9 +120,30 @@ function attachRadioListeners() {
     });
 }
 
+// Event listener for the search form
+const searchInput = document.querySelector('input[name="q"]');
+document.querySelector('form').addEventListener('submit', function (event) {
+    event.preventDefault();  // Prevent the default form submission
+    const query = searchInput.value;  // Get the search query
+    getTasks(query);  // Fetch tasks based on the search query
+});
 
-// Fetch tasks every 5 seconds
-setInterval(getTasks, 5000);
+// Function to handle interval fetching based on input value
+function handleIntervalFetch() {
+    const interval = setInterval(() => {
+        const query = searchInput.value.trim();
+        if (query) {
+            getTasks(query);  // Fetch tasks based on the search query
+        } else {
+            getTasks();  // Fetch all tasks if no query is present
+        }
+    }, 5000); // Set to 5 seconds
+
+    return interval;
+}
+
+// Start the interval fetching
+let fetchInterval = handleIntervalFetch();
 getTasks();  // Initial load
 
 //------------------------ Refresh qilinganda tanlangan bo'limda qolish --------------------------
@@ -160,5 +175,3 @@ document.addEventListener('DOMContentLoaded', function () {
         activePane.classList.add('show', 'active');
     }
 });
-
-

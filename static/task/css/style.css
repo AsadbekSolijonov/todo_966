@@ -150,8 +150,14 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.reminder-border-bottom:hover {
-    background-color: rgba(224, 224, 224, 0.50);
+.bi-info-circle {
+    opacity: 0;
+    display: inline-block;
+    transition: opacity 0.2 ease-in-out;
+}
+
+.reminder-border-bottom:hover .bi-info-circle {
+    opacity: 1;
 
 }
 
@@ -195,7 +201,6 @@ body {
 
 
 /* Radio buttondagi ichki oq nuqta */
-
 .reminder-item input[type="radio"]:checked::after {
     content: '';
     display: block;
@@ -287,4 +292,3 @@ body {
 }
 
 /*---------- / Animation -----------*/
-

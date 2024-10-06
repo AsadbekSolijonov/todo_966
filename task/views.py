@@ -11,14 +11,24 @@ def to_do(request):
 
 def to_do_get(request):
     if request.method == 'GET':
-        todo_objs = Task.todo.all().values('id', 'title', 'description', 'created_at', 'updated_at')
-        done_objs = Task.done.all().values('id', 'title', 'description', 'created_at', 'updated_at')
+
+        q = request.GET.get('q', '')
+
+        if q:
+            todo_objs = Task.todo.filter(title__icontains=q).values('id', 'title', 'description', 'created_at',
+                                                                    'updated_at')
+            done_objs = Task.done.filter(title__icontains=q).values('id', 'title', 'description', 'created_at',
+                                                                    'updated_at')
+        else:
+            todo_objs = Task.todo.all().values('id', 'title', 'description', 'created_at', 'updated_at')
+            done_objs = Task.done.all().values('id', 'title', 'description', 'created_at', 'updated_at')
 
         data = {
             'todo_objects': list(todo_objs),
             'done_objects': list(done_objs)
 
         }
+        print(data)
         return JsonResponse(data, safe=False)
 
 
