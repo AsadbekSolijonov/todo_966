@@ -36,16 +36,16 @@ function updateTaskLists(data) {
     const todoContainer = document.getElementById('v-pills-home');
     const doneContainer = document.getElementById('v-pills-profile');
 
-    // H:i format for time
+    // H:i formatda vaqt
     let time = (today) => {
         const createdAt = new Date(today);
-        return createdAt.toLocaleTimeString('en-GB', { hour: "2-digit", minute: "2-digit" });
+        return createdAt.toLocaleTimeString('uz-UZ', {hour: "2-digit", minute: "2-digit"});
     }
 
     todoContainer.innerHTML = '';
     doneContainer.innerHTML = '';
 
-    // Populate TODO
+    // TODO ro'yxatini chiqarish
     if (data.todo_objects.length > 0) {
         data.todo_objects.forEach(task => {
             todoContainer.innerHTML += `
@@ -53,9 +53,23 @@ function updateTaskLists(data) {
                     <input type="radio" id="todo-${task.id}" name="reminder">
                     <label for="todo-${task.id}" class="reminder-border-bottom">
                         <input type="hidden" value="${task.id}">
-                        <strong class="poppins-bold">${task.title}<i class="bi bi-info-circle float-end"></i></strong>
+                        <strong class="poppins-bold">${task.title}
+                            <i class="bi bi-info-circle float-end" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                            <ul class="dropdown-menu">
+                              <li>
+                                  <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal">
+                                    Edit
+                                  </a>
+                              </li>
+                              <li>
+                                  <a class="dropdown-item text-danger" href="#" onclick="openDeleteModal(${task.id})">
+                                  Delete
+                                  </a>
+                              </li>
+                            </ul>
+                        </strong>
                         <p class="poppins-light">${task.description}</p>
-                        <span class="reminder-time poppins-medium">Reminders – <span class="time">${time(task.created_at)}</span></span>
+                        <span class="reminder-time poppins-medium">Vaqti – <span class="time">${time(task.created_at)}</span></span>
                     </label>
                 </div>`;
         });
@@ -63,7 +77,7 @@ function updateTaskLists(data) {
         todoContainer.innerHTML += `Bajarish uchun hech qanday topshiriq mavjud emas`;
     }
 
-    // Populate DONE
+    // DONE ro'yxatini chiqarish
     if (data.done_objects.length > 0) {
         data.done_objects.forEach(task => {
             doneContainer.innerHTML += `
@@ -71,19 +85,70 @@ function updateTaskLists(data) {
                     <input type="radio" id="done-${task.id}" name="reminder">
                     <label for="done-${task.id}" class="reminder-border-bottom">
                         <input type="hidden" value="${task.id}">
-                        <strong class="poppins-bold">${task.title} <i class="bi bi-info-circle float-end"></i></strong>
+                        <strong class="poppins-bold">${task.title}
+                            <i class="bi bi-info-circle float-end" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                            <ul class="dropdown-menu">
+                              <li>
+                                  <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal">
+                                  Edit
+                                  </a>
+                              </li>
+                              <li>
+                                  <a class="dropdown-item text-danger" href="#" onclick="openDeleteModal(${task.id})">
+                                    Delete
+                                  </a>
+                              </li>
+                            </ul>
+                        </strong>
                         <p class="poppins-light">${task.description}</p>
-                        <span class="reminder-time poppins-medium">Reminders – <span class="time">${time(task.created_at)}</span></span>
+                        <span class="reminder-time poppins-medium">Vaqti – <span class="time">${time(task.created_at)}</span></span>
                     </label>
                 </div>`;
         });
     } else {
         doneContainer.innerHTML += `Bajarilgan topshiriqlar mavjud emas`;
     }
-
-    // Attach event listeners for radio buttons
-    attachRadioListeners();
 }
+
+// O'chirish modalini ochish va tasdiqlash
+function openDeleteModal(taskId) {
+    document.getElementById('taskIdToDelete').value = taskId;  // O'chirish uchun ID saqlanadi
+    let deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+}
+
+// Modalni yopish uchun Bootstrap modal obyekti
+const deleteModalElement = document.getElementById('deleteModal');
+const deleteModal = new bootstrap.Modal(deleteModalElement);
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    const taskId = document.getElementById('taskIdToDelete').value;
+
+    fetch('/task/delete/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({ id: taskId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data); // Javobni konsolga chiqarish
+        alert(data.message);
+
+        // Agar o'chirish muvaffaqiyatli bo'lsa
+        if (data.message === "Topshiriq o'chirildi.") {
+            deleteModal.hide(); // Modalni yopish
+            // O'chirilgandan keyin ro'yxatni yangilang
+            updateTaskLists(data); // data obyektini yangilang
+        }
+    })
+    .catch(error => console.error('Xatolik:', error));
+});
+
+
+
 
 // Function to handle task completion toggles
 function attachRadioListeners() {
@@ -104,7 +169,7 @@ function attachRadioListeners() {
                         "Content-type": "application/json",
                         "X-CSRFToken": getCookie('csrftoken')
                     },
-                    body: JSON.stringify({ id: taskId })
+                    body: JSON.stringify({id: taskId})
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -175,3 +240,41 @@ document.addEventListener('DOMContentLoaded', function () {
         activePane.classList.add('show', 'active');
     }
 });
+
+
+// CREATE TASK
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('#createTaskForm');
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent default form submission
+
+        const formData = new FormData(form);  // Gather form data
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': form.querySelector('input[name="csrfmiddlewaretoken"]').value,
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);  // Show success or error message
+
+                if (data.message === "Topshiriq muvoffaqiyatli yaratildi!") {
+                    // Reset the form and close the modal on successful creation
+                    form.reset();
+                    let modal = bootstrap.Modal.getInstance(document.getElementById('createModal'));
+                    modal.hide();
+                    // Optionally, refresh the task list or update the UI as needed
+                }
+            })
+            .catch(error => {
+                console.error("AJAX Error:", error);
+                alert("Server bilan bog'lanishda xatolik yuz berdi.");
+            });
+    });
+});
+
+
