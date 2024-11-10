@@ -22,9 +22,11 @@ def to_do_get(request):
         q = request.GET.get('q', '')
 
         if q:
-            todo_objs = Task.todo.filter(title__icontains=q).values('id', 'title', 'description', 'is_done', 'created_at',
+            todo_objs = Task.todo.filter(title__icontains=q).values('id', 'title', 'description', 'is_done',
+                                                                    'created_at',
                                                                     'updated_at')
-            done_objs = Task.done.filter(title__icontains=q).values('id', 'title', 'description', 'is_done', 'created_at',
+            done_objs = Task.done.filter(title__icontains=q).values('id', 'title', 'description', 'is_done',
+                                                                    'created_at',
                                                                     'updated_at')
         else:
             todo_objs = Task.todo.all().values('id', 'title', 'description', 'is_done', 'created_at', 'updated_at')
@@ -73,11 +75,6 @@ def delete_task(request):
         task.delete()
         return JsonResponse({"message": "Topshiriq o'chirildi."})
     return JsonResponse({"message": "Topshiriq o'chirish uchun topilmadi."})
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Task
 
 
 @csrf_exempt
