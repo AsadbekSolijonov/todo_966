@@ -39,7 +39,7 @@ function updateTaskLists(data) {
     // H:i formatda vaqt
     let time = (today) => {
         const createdAt = new Date(today);
-        return createdAt.toLocaleTimeString('uz-UZ', {hour: "2-digit", minute: "2-digit"});
+        return createdAt.toLocaleTimeString('en-GB', {hour: "2-digit", minute: "2-digit"});
     }
 
     todoContainer.innerHTML = '';
@@ -57,7 +57,14 @@ function updateTaskLists(data) {
                             <i class="bi bi-info-circle float-end" data-bs-toggle="dropdown" aria-expanded="false"></i>
                             <ul class="dropdown-menu">
                               <li>
-                                  <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal">
+                                  <a class="dropdown-item" href="#" 
+                                      data-bs-toggle="modal" 
+                                      data-bs-target="#editModal"
+                                      data-bs-id="${task.id}"
+                                      data-bs-title="${task.title}"
+                                      data-bs-description="${task.description}"
+                                      data-bs-is-done="${task.is_done}"
+                                  >
                                     Edit
                                   </a>
                               </li>
@@ -89,7 +96,16 @@ function updateTaskLists(data) {
                             <i class="bi bi-info-circle float-end" data-bs-toggle="dropdown" aria-expanded="false"></i>
                             <ul class="dropdown-menu">
                               <li>
-                                  <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal">
+                                  <a class="dropdown-item" href="#" 
+                                  data-bs-toggle="modal" 
+                                  data-bs-target="#editModal"
+                                  data-bs-id="${task.id}"
+                                  data-bs-title="${task.title}"
+                                  data-bs-description="${task.description}"
+                                  data-bs-is-done="${task.is_done}"
+                                  
+                                  
+                                  >
                                   Edit
                                   </a>
                               </li>
@@ -108,6 +124,7 @@ function updateTaskLists(data) {
     } else {
         doneContainer.innerHTML += `Bajarilgan topshiriqlar mavjud emas`;
     }
+    attachRadioListeners();
 }
 
 // O'chirish modalini ochish va tasdiqlash
@@ -121,7 +138,7 @@ function openDeleteModal(taskId) {
 const deleteModalElement = document.getElementById('deleteModal');
 const deleteModal = new bootstrap.Modal(deleteModalElement);
 
-document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
     const taskId = document.getElementById('taskIdToDelete').value;
 
     fetch('/task/delete/', {
@@ -130,24 +147,22 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', function()
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
         },
-        body: JSON.stringify({ id: taskId })
+        body: JSON.stringify({id: taskId})
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data); // Javobni konsolga chiqarish
-        alert(data.message);
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // Javobni konsolga chiqarish
+            alert(data.message);
 
-        // Agar o'chirish muvaffaqiyatli bo'lsa
-        if (data.message === "Topshiriq o'chirildi.") {
-            deleteModal.hide(); // Modalni yopish
-            // O'chirilgandan keyin ro'yxatni yangilang
-            updateTaskLists(data); // data obyektini yangilang
-        }
-    })
-    .catch(error => console.error('Xatolik:', error));
+            // Agar o'chirish muvaffaqiyatli bo'lsa
+            if (data.message === "Topshiriq o'chirildi.") {
+                deleteModal.hide(); // Modalni yopish
+                // O'chirilgandan keyin ro'yxatni yangilang
+                updateTaskLists(data); // data obyektini yangilang
+            }
+        })
+        .catch(error => console.error('Xatolik:', error));
 });
-
-
 
 
 // Function to handle task completion toggles
@@ -276,5 +291,117 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 });
+
+
+// EDIT SCRIPT
+document.addEventListener('DOMContentLoaded', function () {
+    let editModal = document.getElementById('editModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+        let button = event.relatedTarget;
+        let blogId = button.getAttribute('data-bs-id');
+        let blogTitle = button.getAttribute('data-bs-title');
+        let blogDescription = button.getAttribute('data-bs-description');
+        let blogIsDone = button.getAttribute('data-bs-is-done') === 'true';
+
+        console.log(blogId);
+        console.log(blogTitle);
+        console.log(blogDescription);
+        console.log(blogIsDone);
+
+        let id = editModal.querySelector('#editTaskId');
+        let title = editModal.querySelector('#editTaskTitle');
+        let description = editModal.querySelector('#editTaskDescription');
+        let isDone = editModal.querySelector('#editTaskIsDone');
+
+        id.value = blogId;
+        title.value = blogTitle;
+        description.value = blogDescription;
+        isDone.checked = blogIsDone;
+    });
+});
+
+
+// Handle Edit Task form submission
+// Function to handle the task edit form submission
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('#editTaskForm');
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent default form submission
+
+        const formData = new FormData(form);  // Gather form data
+
+        // Add the checkbox status (is_done) manually if not in the form data
+        const isDoneCheckbox = document.querySelector('#editTaskIsDone');
+
+        if (isDoneCheckbox) {  // Check if the checkbox exists
+            if (isDoneCheckbox.checked) {
+                formData.set('is_done', 'true');  // If checkbox is checked, add is_done=true
+            } else {
+                formData.delete('is_done');  // If checkbox is unchecked, ensure is_done is not sent
+            }
+        }
+
+        // Send form data to the backend
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': form.querySelector('input[name="csrfmiddlewaretoken"]').value,
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);  // Show success or error message
+
+                if (data.message === "Topshiriq muvoffaqiyatli tahrirlandi!") {
+                    // Reset the form and close the modal on successful creation
+                    form.reset();
+                    let modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                    modal.hide();
+
+                    // Optionally, refresh the task list or update the UI as needed
+                    updateTaskListInUI(data.task); // Update the task in the UI
+                }
+            })
+            .catch(error => {
+                console.error("AJAX Error:", error);
+                alert("Server bilan bog'lanishda xatolik yuz berdi.");
+            });
+    });
+});
+
+
+// Function to update the task in the UI (either ToDo or Done list)
+function updateTaskListInUI(task) {
+    // Determine where to place the task based on the 'is_done' status
+    const todoContainer = document.getElementById('v-pills-home');
+    const doneContainer = document.getElementById('v-pills-profile');
+
+    // Get the task element based on task ID (to avoid duplicates)
+    let taskElement = document.getElementById(`task-${task.id}`);
+
+    // If task is in the ToDo list and is now marked as done
+    if (!task.is_done && doneContainer.contains(taskElement)) {
+        doneContainer.removeChild(taskElement);
+        todoContainer.appendChild(taskElement);  // Move task to ToDo list
+    }
+    // If task is in the Done list and is now marked as not done
+    else if (task.is_done && todoContainer.contains(taskElement)) {
+        todoContainer.removeChild(taskElement);
+        doneContainer.appendChild(taskElement);  // Move task to Done list
+    }
+
+    // Update task's HTML content
+    taskElement.querySelector('.task-title').innerText = task.title;
+    taskElement.querySelector('.task-description').innerText = task.description;
+    taskElement.querySelector('.reminder-time .time').innerText = formatTime(task.created_at);
+}
+
+// Function to format time (same as in the original code)
+function formatTime(dateString) {
+    const createdAt = new Date(dateString);
+    return createdAt.toLocaleTimeString('en-GB', {hour: "2-digit", minute: "2-digit"});
+}
 
 

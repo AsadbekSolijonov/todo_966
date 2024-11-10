@@ -7,4 +7,5 @@ urlpatterns = [
     path('task-receiver/', views.receiver_reminder, name="task-receiver"),  # For marking tasks as done/undone
     path('task/create/', views.create, name='task-create'),  # Task for creating
     path('task/delete/', views.delete_task, name='task-delete'),  # Task for deleting
+    path('task/edit/', views.edit_task, name='task-edit'),  # Task for deleting
 ]
